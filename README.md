@@ -18,7 +18,7 @@
 ```bash
 # 0. 环境要求：Rust 1.75+ / Node 18+ / Git
 # 1. 克隆
-git clone https://github.com/<your>/violet-agent.git && cd violet-agent
+git clone https://github.com/simlerick/violet-agent.git && cd violet-agent
 # 2. 前端依赖
 cd src && npm install
 # 3. 运行（Tauri）
