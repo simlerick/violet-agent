@@ -14,17 +14,18 @@
 
 ---
 
-## 3 分钟跑起来（占位，待 M0 完成后填充）
+## 3 分钟跑起来（macOS 推荐）
 ```bash
 # 0. 环境要求：Rust 1.75+ / Node 18+ / Git
+#    macOS：xcode-select --install && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 # 1. 克隆
 git clone https://github.com/simlerick/violet-agent.git && cd violet-agent
 # 2. 前端依赖
-cd src && npm install
-# 3. 运行（Tauri）
-cd .. && cargo run
+cd src && npm install && cd ..
+# 3. 运行（Tauri 窗口）
+cargo run
 ```
-> ⚠️ 当前处于 **M0 地基**阶段，骨架与文档已就位，可编译代码随里程碑填充。
+> 详细步骤见 [docs/RUNNING.md](docs/RUNNING.md)。Windows 注意：若系统开启了「智能应用控制」，会拦截 Rust 编译的无签名程序，需关闭或在 GitHub CI 云端编译。
 
 ---
 
