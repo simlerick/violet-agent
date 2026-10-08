@@ -1,0 +1,39 @@
+[package]
+name = "violet-agent"
+version = "0.1.0"
+description = "Violet Agent — Solana 链上交易 AI Agent + 子母钱包"
+edition = "2021"
+license = "MIT"
+
+[lib]
+name = "violet_agent_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# --- 子母钱包 / 本地安全（M0 起步依赖，后续里程碑逐步启用） ---
+# 助记词 & 私钥本地生成 / 加密（本地，永不上云）
+# bip39 = "2"
+# ed25519-dalek = "2"
+# argon2 = "0.5"
+# chacha20poly1305 = "0.10"
+
+# --- Solana（M2 交易里程碑启用） ---
+# solana-sdk = "1"
+# jupiter-amm-interface = "3"
+
+[features]
+# 默认：devnet 安全默认（M4 再开放 mainnet）
+default = []
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
