@@ -1,0 +1,23 @@
+// Tauri CI 基础工作流：Rust + Node 检查（M0）
+// 真实构建 / Release 在 M4 完善；GitHub token 到位后启用推送。
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check (cargo check)
+        working-directory: src-tauri
+        run: cargo check
