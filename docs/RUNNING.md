@@ -103,3 +103,11 @@ cargo tauri build     # 生成 .dmg / .app
 | `os error 4551` | Smart App Control 拦截，见上 |
 | 前端改了不生效 | 用 `cargo tauri dev`（热重载） |
 | 端口被占用 | vite 固定 1420 端口，关闭占用进程 |
+
+## M1：对话（LLM 网关）
+
+- 聊天面板在 **Chat** 视图。发送消息 → Rust `llm_chat` → OpenAI 兼容 API（默认 Deepseek）。
+- **配置 API Key**（二选一）：
+  - 环境变量：`export VIOLET_LLM_API_KEY=sk-xxx`（可选 `VIOLET_LLM_BASE_URL`、`VIOLET_LLM_MODEL`）
+  - 配置文件：`~/.violet-agent/config.json` → `{"llm_api_key": "sk-xxx"}`
+- **未配置 Key**：自动降级为本地关键词回复（wallet / trade / solana / help 等），聊天功能仍可用。

@@ -8,55 +8,56 @@
   </head>
   <body>
     <div id="app">
-      <!-- 顶部拖拽区（无边框窗口） -->
-      <header class="topbar" data-tauri-drag-region></header>
+      <!-- 顶栏：标题 + 窗口控制 -->
+      <header class="topbar" data-tauri-drag-region>
+        <span class="brand" id="brandTitle">Violet Agent</span>
+        <div class="win-controls">
+          <button id="langBtn" class="lang-btn" data-i18n="btnZh">中文</button>
+          <button id="winMin" class="win-btn" title="minimize">–</button>
+          <button id="winClose" class="win-btn" title="close">×</button>
+        </div>
+      </header>
 
-      <!-- 窗口控制 -->
-      <div class="win-controls">
-        <button id="langBtn" class="lang-btn" data-i18n="btnZh">中文</button>
-        <button id="winMin" class="win-btn" title="minimize">–</button>
-        <button id="winClose" class="win-btn" title="close">×</button>
-      </div>
+      <main class="layout">
+        <!-- 左侧导航（正常按钮） -->
+        <nav class="nav">
+          <button class="nav-item active" data-key="chat" data-i18n="navChat">Chat</button>
+          <button class="nav-item" data-key="wallet" data-i18n="navWallet">Wallet</button>
+          <button class="nav-item" data-key="portfolio" data-i18n="navPortfolio">Portfolio</button>
+          <button class="nav-item" data-key="orders" data-i18n="navOrders">Orders</button>
+          <button class="nav-item" data-key="settings" data-i18n="navSettings">Settings</button>
+          <button class="nav-item" data-key="mother" data-i18n="navMother">Mother Key</button>
+        </nav>
 
-      <!-- 导航热区（透明，点击切换视图） -->
-      <nav class="nav">
-        <button class="nav-item active" data-key="wallet" data-i18n="navWallet">Wallet</button>
-        <button class="nav-item" data-key="portfolio" data-i18n="navPortfolio">Portfolio</button>
-        <button class="nav-item" data-key="orders" data-i18n="navOrders">Orders</button>
-        <button class="nav-item" data-key="settings" data-i18n="navSettings">Settings</button>
-        <button class="nav-item" data-key="mother" data-i18n="navMother">Mother Key</button>
-      </nav>
+        <!-- 中间内容区 -->
+        <section class="content">
+          <!-- Chat 视图：M1 对话面板 -->
+          <div id="viewChat" class="view view-chat">
+            <div id="chatLog" class="chat-log" aria-live="polite"></div>
+            <div class="chat-input-row">
+              <input id="chatInput" class="chat-input" type="text" data-i18n="chatPlaceholder" placeholder="message Violet…" autocomplete="off" />
+              <button id="chatSend" class="chat-send" data-i18n="chatSend">Send</button>
+            </div>
+          </div>
 
-      <!-- 数据层（叠在 Wallet Status 信纸上） -->
-      <code id="healthJson" class="health">checking…</code>
-
-      <!-- 视图占位层（非 Wallet 视图提示） -->
-      <div id="viewHint" class="view-hint hidden"></div>
-
-      <!-- Send Letter 输入热区 -->
-      <div class="send-zone">
-        <input id="orderInput" class="order-input" type="text" data-i18n="pnSendPlaceholder" placeholder="type your order…" />
-        <button id="sendBtn" class="send-btn"><span class="send-icon">✉</span></button>
-      </div>
-
-      <!-- Self 开关 -->
-      <label class="switch">
-        <input id="selfToggle" type="checkbox" checked />
-        <span class="track"></span>
-      </label>
-
-      <!-- 动作按钮热区（纸感实底，盖住图上旧字） -->
-      <div class="actions">
-        <button class="action-btn active" data-action="idle" data-i18n="actIdle">Idle</button>
-        <button class="action-btn" data-action="wave" data-i18n="actWave">Wave</button>
-        <button class="action-btn" data-action="deliver" data-i18n="actDeliver">Deliver Letter</button>
-        <button class="action-btn" data-action="think" data-i18n="actThink">Think</button>
-      </div>
-
-      <!-- 独立立绘层（透明 PNG，可动画） -->
-      <div class="portrait-wrap" id="portraitWrap">
-        <img id="mainPortrait" class="portrait p-idle" src="/assets/violet-portrait-t.png" alt="Violet" draggable="false" />
-      </div>
+          <!-- 其他视图占位 -->
+          <div id="viewWallet" class="view view-placeholder hidden">
+            <code id="healthJson" class="health">checking…</code>
+          </div>
+          <div id="viewPortfolio" class="view view-placeholder hidden">
+            <p class="placeholder-text" data-i18n="phPortfolio">Portfolio · on-chain · M3</p>
+          </div>
+          <div id="viewOrders" class="view view-placeholder hidden">
+            <p class="placeholder-text" data-i18n="phOrders">Orders · trading · M4</p>
+          </div>
+          <div id="viewSettings" class="view view-placeholder hidden">
+            <p class="placeholder-text" data-i18n="phSettings">Settings · coming soon</p>
+          </div>
+          <div id="viewMother" class="view view-placeholder hidden">
+            <p class="placeholder-text" data-i18n="phMother">Mother Key · local-only · BIP39</p>
+          </div>
+        </section>
+      </main>
     </div>
 
     <script type="module" src="/ui/main.js"></script>
