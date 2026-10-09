@@ -25,5 +25,11 @@ export default defineConfig({
     // Tauri 在 Windows 上支持 'base64'；macOS 支持 'safari'
     target: process.env.TAURI_ENV_PLATFORM === "windows" ? "chrome105" : "safari13",
     outDir: "dist",
+    rollupOptions: {
+      input: {
+        main: "index.html",
+        chibi: "chibi.html",
+      },
+    },
   },
 });

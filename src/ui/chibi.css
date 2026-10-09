@@ -1,0 +1,112 @@
+/* 悬浮球桌宠 —— 透明窗口样式（豆包式） */
+html, body {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  overflow: hidden;
+  user-select: none;
+}
+
+.pet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  cursor: grab;
+}
+
+/* 圆形球体 */
+.ball {
+  width: 116px;
+  height: 116px;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 10px 28px rgba(95, 79, 143, 0.35), 0 0 0 3px rgba(253, 250, 242, 0.7);
+  background: #fdfaf2;
+  animation: float 3.6s ease-in-out infinite;
+}
+.ball img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+/* 气泡 */
+.bubble {
+  position: absolute;
+  top: -34px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fdfaf2;
+  border: 1px solid #ddd0ba;
+  border-radius: 10px;
+  padding: 4px 10px;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-size: 12.5px;
+  color: #5f4f8f;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(90, 74, 110, 0.18);
+  z-index: 5;
+}
+
+/* 动作菜单（点击球弹出） */
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(253, 250, 242, 0.96);
+  border: 1px solid #ddd0ba;
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 8px 20px rgba(90, 74, 110, 0.22);
+  z-index: 10;
+}
+.menu-btn {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 13px;
+  letter-spacing: 0.6px;
+  color: #6b6276;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.18s ease;
+}
+.menu-btn:hover { color: #5f4f8f; background: rgba(154, 134, 189, 0.12); }
+.menu-btn.active { color: #fdfaf2; background: #5f4f8f; }
+
+/* 动作动画 */
+.ball[data-action="idle"] { animation: float 3.6s ease-in-out infinite; }
+.ball[data-action="wave"] { animation: wave 1.1s ease-in-out infinite; }
+.ball[data-action="deliver"] { animation: deliver 1.6s ease-in-out infinite; }
+.ball[data-action="think"] { animation: think 2.2s ease-in-out infinite; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes wave {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-6deg); }
+  40% { transform: rotate(6deg); }
+  60% { transform: rotate(-4deg); }
+  80% { transform: rotate(3deg); }
+}
+@keyframes deliver {
+  0%, 100% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-20px) scale(1.05); }
+  60% { transform: translateY(-20px) scale(1.05); }
+}
+@keyframes think {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+.hidden { display: none !important; }

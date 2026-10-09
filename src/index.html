@@ -8,17 +8,17 @@
   </head>
   <body>
     <div id="app">
-      <!-- 左侧：品牌 + 竖排导航 -->
+      <!-- 左侧：品牌 + 竖排导航（素、浅） -->
       <aside class="sidebar">
         <div class="brand">
           <span class="brand-name" data-i18n="appName">Violet Agent</span>
         </div>
         <nav class="nav">
-          <a class="nav-item active" data-key="wallet"><span class="nav-dot"></span><span data-i18n="navWallet">Wallet</span></a>
-          <a class="nav-item" data-key="portfolio"><span class="nav-dot"></span><span data-i18n="navPortfolio">Portfolio</span></a>
-          <a class="nav-item" data-key="orders"><span class="nav-dot"></span><span data-i18n="navOrders">Orders</span></a>
-          <a class="nav-item" data-key="settings"><span class="nav-dot"></span><span data-i18n="navSettings">Settings</span></a>
-          <a class="nav-item" data-key="mother"><span class="nav-dot"></span><span data-i18n="navMother">Mother Key</span></a>
+          <a class="nav-item active" data-key="wallet" data-i18n="navWallet">Wallet</a>
+          <a class="nav-item" data-key="portfolio" data-i18n="navPortfolio">Portfolio</a>
+          <a class="nav-item" data-key="orders" data-i18n="navOrders">Orders</a>
+          <a class="nav-item" data-key="settings" data-i18n="navSettings">Settings</a>
+          <a class="nav-item" data-key="mother" data-i18n="navMother">Mother Key</a>
         </nav>
         <div class="lang-wrap">
           <button id="langBtn" class="lang-btn" data-i18n="btnZh">中文</button>
@@ -27,64 +27,44 @@
 
       <!-- 主区 -->
       <main class="main">
-        <header class="topbar">
-          <h1 class="title" data-i18n="appName">Violet Agent</h1>
-        </header>
-
+        <!-- 中间：4 个紧凑小信笺卡片 -->
         <section class="content">
-          <!-- 中间功能面板 -->
           <div class="panels">
-            <article class="paper-panel">
+            <article class="note-card">
               <h2 data-i18n="pnWalletStatus">Wallet Status</h2>
-              <div class="status-row">
-                <span class="status-dot"></span>
-                <code id="healthJson">checking…</code>
-              </div>
+              <code id="healthJson" class="health">checking…</code>
             </article>
 
-            <article class="paper-panel">
+            <article class="note-card">
               <h2 data-i18n="pnBalance">Balance</h2>
-              <div class="balance-line"></div>
-              <p class="placeholder" data-i18n="pnBalancePlaceholder">Child wallet on Solana, awaiting setup.</p>
+              <p class="note" data-i18n="pnBalancePlaceholder">awaiting setup</p>
             </article>
 
-            <article class="paper-panel">
+            <article class="note-card">
               <h2 data-i18n="pnHistory">History</h2>
               <ul class="tx-list">
                 <li class="tx-row"></li>
                 <li class="tx-row"></li>
                 <li class="tx-row"></li>
               </ul>
-              <p class="placeholder" data-i18n="pnHistoryPlaceholder">No letters sent yet.</p>
             </article>
 
-            <article class="paper-panel">
-              <h2 data-i18n="pnSend">Send Letter</h2>
-              <button class="send-btn" data-i18n="pnSendBtn">Compose order</button>
+            <article class="note-card send-card">
+              <h2><span class="seal"></span><span data-i18n="pnSend">Send Letter</span></h2>
+              <div class="send-row">
+                <input id="orderInput" class="order-input" type="text" data-i18n="pnSendPlaceholder" placeholder="type your order…" />
+                <button id="sendBtn" class="send-btn"><span class="send-icon">✉</span></button>
+              </div>
             </article>
           </div>
 
-          <!-- 右侧：原版立绘 -->
+          <!-- 右侧：大立绘 -->
           <div class="portrait-panel">
             <img src="/assets/violet-portrait.png" alt="Violet" class="portrait" />
             <div class="portrait-caption" data-i18n="portraitCaption">Auto Memory Doll</div>
           </div>
         </section>
       </main>
-
-      <!-- 右下角：桌宠动作区 -->
-      <div class="chibi-zone">
-        <div class="action-buttons">
-          <button class="action-btn active" data-action="idle" data-i18n="actIdle">Idle</button>
-          <button class="action-btn" data-action="wave" data-i18n="actWave">Wave</button>
-          <button class="action-btn" data-action="deliver" data-i18n="actDeliver">Deliver Letter</button>
-          <button class="action-btn" data-action="think" data-i18n="actThink">Think</button>
-        </div>
-        <div id="chibi" class="chibi" data-action="idle">
-          <img id="chibiImg" src="/assets/chibi-idle.png" alt="Violet chibi" />
-          <div class="bubble hidden"></div>
-        </div>
-      </div>
     </div>
 
     <script type="module" src="/ui/main.js"></script>

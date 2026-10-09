@@ -1,7 +1,7 @@
-// Violet Agent 前端逻辑（M0 视觉 v3 —— 参考原版 UI）
-// - 中英文切换（默认英文，中文表已就绪）
-// - keystore 健康检查（Tauri invoke -> wallet::keystore::health）
-// - Q 版桌宠动作切换（Idle / Wave / Deliver Letter / Think）
+// Violet Agent 前端逻辑（M0 视觉 v4）
+// - 中英文切换（默认英文）
+// - keystore 健康检查
+// - 指令输入框：打字/连接时通知悬浮球桌宠切动作（Tauri 事件）
 
 const I18N = {
   en: {
@@ -15,18 +15,11 @@ const I18N = {
     btnEn: "English",
     pnWalletStatus: "Wallet Status",
     pnBalance: "Balance",
-    pnBalancePlaceholder: "Child wallet on Solana, awaiting setup.",
+    pnBalancePlaceholder: "awaiting setup",
     pnHistory: "History",
-    pnHistoryPlaceholder: "No letters sent yet.",
     pnSend: "Send Letter",
-    pnSendBtn: "Compose order",
+    pnSendPlaceholder: "type your order…",
     portraitCaption: "Auto Memory Doll",
-    actIdle: "Idle",
-    actWave: "Wave",
-    actDeliver: "Deliver Letter",
-    actThink: "Think",
-    bubbleDeliver: "A letter for you.",
-    bubbleThink: "Hmm…",
   },
   zh: {
     appName: "紫罗兰特工",
@@ -39,22 +32,16 @@ const I18N = {
     btnEn: "English",
     pnWalletStatus: "钱包状态",
     pnBalance: "余额",
-    pnBalancePlaceholder: "子钱包已预留，等待 Solana 接入。",
+    pnBalancePlaceholder: "等待接入",
     pnHistory: "历史流水",
-    pnHistoryPlaceholder: "尚未发出任何信件。",
     pnSend: "寄出指令",
-    pnSendBtn: "撰写订单",
+    pnSendPlaceholder: "输入你的指令…",
     portraitCaption: "自动手记人偶",
-    actIdle: "待机",
-    actWave: "挥手",
-    actDeliver: "递信",
-    actThink: "思考",
-    bubbleDeliver: "这是寄给你的信。",
-    bubbleThink: "唔……",
   },
 };
 
 let currentLang = "en";
+let pet = null; // 悬浮球事件发射器（Tauri 环境才有）
 
 function applyLang(lang) {
   currentLang = lang;
@@ -65,63 +52,72 @@ function applyLang(lang) {
   });
   const btn = document.getElementById("langBtn");
   if (btn) btn.textContent = lang === "en" ? I18N.en.btnZh : I18N.en.btnEn;
+  // placeholder 单独处理
+  const input = document.getElementById("orderInput");
+  if (input) input.placeholder = I18N[lang].pnSendPlaceholder;
 }
 
-// 桌宠动作切换：按钮点亮 + 动画切换 + 气泡
-function setupChibiActions() {
-  const chibi = document.getElementById("chibi");
-  const buttons = document.querySelectorAll(".action-btn");
-  if (!chibi || !buttons.length) return;
-
-  const bubble = chibi.querySelector(".bubble");
-  const img = document.getElementById("chibiImg");
-
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      buttons.forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      const action = btn.dataset.action;
-      chibi.dataset.action = action;
-      // 真动作帧切换：/assets/chibi-{action}.png（wave/deliver/think/idle）
-      if (img) img.src = `/assets/chibi-${action}.png`;
-      // 气泡（仅递信/思考有文案）
-      if (bubble && (action === "deliver" || action === "think")) {
-        bubble.textContent = I18N[currentLang][action === "deliver" ? "bubbleDeliver" : "bubbleThink"];
-        bubble.classList.remove("hidden");
-        clearTimeout(bubble._t);
-        bubble._t = setTimeout(() => bubble.classList.add("hidden"), 2200);
-      } else if (bubble) {
-        bubble.classList.add("hidden");
-      }
-      // 点击反馈：动作按钮组是触发点，桌宠本身给个轻微弹跳
-      chibi.animate(
-        [{ transform: "scale(1)" }, { transform: "scale(1.08)" }, { transform: "scale(1)" }],
-        { duration: 320 }
-      );
-    });
-  });
+async function setupPetEvents() {
+  try {
+    const { emit } = await import("@tauri-apps/api/event");
+    pet = { emit };
+  } catch (e) {
+    console.info("非 Tauri 环境，悬浮球事件跳过", e);
+    pet = null;
+  }
 }
 
-// keystore 健康检查（Tauri -> Rust）
+function notifyPet(action) {
+  if (pet) pet.emit(`chibi:${action}`);
+}
+
+// keystore 健康检查
 async function pingKeystore() {
   const el = document.getElementById("healthJson");
+  if (!el) return;
+  notifyPet("working"); // 连接中 → 桌宠思考
   try {
     const { invoke } = await import("@tauri-apps/api/core");
     const health = await invoke("health");
-    if (el) el.textContent = JSON.stringify(health);
+    el.textContent = JSON.stringify(health);
+    notifyPet("deliver"); // 拿到结果 → 递信
   } catch (e) {
-    // 非 Tauri 环境（纯浏览器预览）时静默
     console.info("非 Tauri 环境，跳过 keystore 检查", e);
-    if (el) el.textContent = "browser preview (no Tauri)";
+    el.textContent = "browser preview (no Tauri)";
+    notifyPet("idle");
   }
 }
 
+// 指令输入框：打字 → Think；发送 → 模拟处理 → Deliver
+function setupOrderBox() {
+  const input = document.getElementById("orderInput");
+  const send = document.getElementById("sendBtn");
+  if (!input || !send) return;
+  input.addEventListener("input", () => notifyPet("typing"));
+  input.addEventListener("blur", () => {
+    if (!input.value) notifyPet("idle");
+  });
+  send.addEventListener("click", () => {
+    if (!input.value.trim()) return;
+    notifyPet("working"); // 连接/处理中 → 思考
+    setTimeout(() => {
+      notifyPet("deliver"); // 处理完成 → 递信
+      input.value = "";
+      input.blur();
+      setTimeout(() => notifyPet("idle"), 2400);
+    }, 1600);
+  });
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") send.click();
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-  applyLang("en"); // 第一版：默认英文（中文表已就绪）
+  applyLang("en");
   const btn = document.getElementById("langBtn");
-  if (btn) {
-    btn.addEventListener("click", () => applyLang(currentLang === "en" ? "zh" : "en"));
-  }
-  setupChibiActions();
-  pingKeystore();
+  if (btn) btn.addEventListener("click", () => applyLang(currentLang === "en" ? "zh" : "en"));
+  setupPetEvents().then(() => {
+    pingKeystore();
+    setupOrderBox();
+  });
 });
