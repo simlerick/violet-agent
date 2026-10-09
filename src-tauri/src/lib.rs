@@ -8,7 +8,9 @@
 
 mod wallet;
 
-use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
+use tauri::{
+    Manager, RunEvent, WebviewUrl, WebviewWindowBuilder, WindowEvent,
+};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -24,20 +26,17 @@ pub fn run() {
             wallet::keystore::health
         ])
         .setup(|app| {
-            // 悬浮球桌宠：透明、置顶、无边框、跳过任务栏（豆包式）
-            if let Some(main_win) = app.get_webview_window("main") {
-                if let Ok(pos) = main_win.outer_position() {
-                    let size = main_win.outer_size().unwrap_or_default();
-                    let scale = main_win.scale_factor().unwrap_or(1.0);
-                    let x = (pos.x as f64 + size.width as f64 - 160.0) / scale;
-                    let y = (pos.y as f64 + size.height as f64 - 230.0) / scale;
-                    let _ = WebviewWindowBuilder::new(
-                        app,
-                        "chibi",
-                        WebviewUrl::App("chibi.html".into()),
-                    )
+            // 桌宠窗口：无背景 Q 版角色，固定右下角、透明、置顶、不可移动（豆包式悬浮精灵）
+            if let Ok(Some(monitor)) = app.primary_monitor() {
+                let size = monitor.size();
+                let w = 280.0;
+                let h = 470.0;
+                let scale = monitor.scale_factor();
+                let x = (size.width as f64 - w * scale) / scale - 24.0;
+                let y = (size.height as f64 - h * scale) / scale - 80.0;
+                let _ = WebviewWindowBuilder::new(app, "chibi", WebviewUrl::App("chibi.html".into()))
                     .title("Violet Pet")
-                    .inner_size(140.0, 200.0)
+                    .inner_size(w, h)
                     .resizable(false)
                     .transparent(true)
                     .decorations(false)
@@ -46,10 +45,35 @@ pub fn run() {
                     .shadow(false)
                     .position(x, y)
                     .build();
-                }
             }
             Ok(())
         })
-        .run(tauri::generate_context!())
-        .expect("error while running Violet Agent");
+        .on_window_event(|window, event| {
+            // 主窗口关闭 → 隐藏主窗口，显示桌宠（点 dock 图标可重新打开主窗口）
+            if let WindowEvent::CloseRequested { api, .. } = event {
+                if window.label() == "main" {
+                    api.prevent_close();
+                    let _ = window.hide();
+                    let app = window.app_handle();
+                    if let Some(chibi) = app.get_webview_window("chibi") {
+                        let _ = chibi.show();
+                        let _ = chibi.set_focus();
+                    }
+                }
+            }
+        })
+        .build(tauri::generate_context!())
+        .expect("error while building Violet Agent")
+        .run(|app_handle, event| {
+            // macOS：点击 Dock 图标重新打开 → 恢复主窗口、隐藏桌宠
+            if let RunEvent::Reopen { has_visible_windows: _, .. } = event {
+                if let Some(main) = app_handle.get_webview_window("main") {
+                    let _ = main.show();
+                    let _ = main.set_focus();
+                }
+                if let Some(chibi) = app_handle.get_webview_window("chibi") {
+                    let _ = chibi.hide();
+                }
+            }
+        });
 }

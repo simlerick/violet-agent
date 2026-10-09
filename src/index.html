@@ -8,11 +8,19 @@
   </head>
   <body>
     <div id="app">
-      <!-- 左侧：品牌 + 竖排导航（素、浅） -->
+      <!-- 顶部标题（居中偏左、大衬线、可拖拽窗口） -->
+      <header class="topbar" data-tauri-drag-region>
+        <h1 class="app-title" data-i18n="appName">Violet Agent</h1>
+      </header>
+
+      <!-- 窗口控制（无边框窗口） -->
+      <div class="win-controls">
+        <button id="winMin" class="win-btn" title="minimize">–</button>
+        <button id="winClose" class="win-btn" title="close">×</button>
+      </div>
+
+      <!-- 左侧导航（字大、间距大、左偏上） -->
       <aside class="sidebar">
-        <div class="brand">
-          <span class="brand-name" data-i18n="appName">Violet Agent</span>
-        </div>
         <nav class="nav">
           <a class="nav-item active" data-key="wallet" data-i18n="navWallet">Wallet</a>
           <a class="nav-item" data-key="portfolio" data-i18n="navPortfolio">Portfolio</a>
@@ -20,51 +28,76 @@
           <a class="nav-item" data-key="settings" data-i18n="navSettings">Settings</a>
           <a class="nav-item" data-key="mother" data-i18n="navMother">Mother Key</a>
         </nav>
-        <div class="lang-wrap">
-          <button id="langBtn" class="lang-btn" data-i18n="btnZh">中文</button>
-        </div>
       </aside>
 
-      <!-- 主区 -->
-      <main class="main">
-        <!-- 中间：4 个紧凑小信笺卡片 -->
-        <section class="content">
-          <div class="panels">
-            <article class="note-card">
-              <h2 data-i18n="pnWalletStatus">Wallet Status</h2>
-              <code id="healthJson" class="health">checking…</code>
-            </article>
+      <!-- 中间：信笺卡片区（纵向紧凑） -->
+      <section class="content">
+        <!-- Wallet 视图 -->
+        <div class="view active" id="view-wallet">
+          <article class="note-card">
+            <h2 data-i18n="pnWalletStatus">Wallet Status</h2>
+            <code id="healthJson" class="health">checking…</code>
+          </article>
+          <article class="note-card">
+            <h2 data-i18n="pnBalance">Balance</h2>
+            <p class="note" data-i18n="pnBalancePlaceholder">awaiting setup</p>
+          </article>
+          <article class="note-card">
+            <h2 data-i18n="pnHistory">History</h2>
+            <ul class="tx-list">
+              <li class="tx-row"></li>
+              <li class="tx-row"></li>
+              <li class="tx-row"></li>
+            </ul>
+          </article>
+          <article class="note-card send-card">
+            <h2><span class="seal"></span><span data-i18n="pnSend">Send Letter</span></h2>
+            <div class="send-row">
+              <input id="orderInput" class="order-input" type="text" data-i18n="pnSendPlaceholder" placeholder="type your order…" />
+              <button id="sendBtn" class="send-btn"><span class="send-icon">✉</span></button>
+            </div>
+          </article>
+          <article class="note-card self-card">
+            <h2><span data-i18n="pnSelf">Self</span></h2>
+            <label class="switch">
+              <input id="selfToggle" type="checkbox" checked />
+              <span class="track"></span>
+            </label>
+          </article>
+        </div>
 
-            <article class="note-card">
-              <h2 data-i18n="pnBalance">Balance</h2>
-              <p class="note" data-i18n="pnBalancePlaceholder">awaiting setup</p>
-            </article>
+        <!-- 占位视图（导航可用） -->
+        <div class="view" id="view-portfolio">
+          <article class="note-card"><h2 data-i18n="pnPortfolio">Portfolio</h2><p class="note" data-i18n="pnComing">coming with M3 · on-chain</p></article>
+        </div>
+        <div class="view" id="view-orders">
+          <article class="note-card"><h2 data-i18n="pnOrders">Orders</h2><p class="note" data-i18n="pnComing">coming with M4 · trading</p></article>
+        </div>
+        <div class="view" id="view-settings">
+          <article class="note-card"><h2 data-i18n="pnSettings">Settings</h2><p class="note" data-i18n="pnComing">coming soon</p></article>
+        </div>
+        <div class="view" id="view-mother">
+          <article class="note-card"><h2 data-i18n="pnMother">Mother Key</h2><p class="note" data-i18n="pnComing">local-only · BIP39</p></article>
+        </div>
+      </section>
 
-            <article class="note-card">
-              <h2 data-i18n="pnHistory">History</h2>
-              <ul class="tx-list">
-                <li class="tx-row"></li>
-                <li class="tx-row"></li>
-                <li class="tx-row"></li>
-              </ul>
-            </article>
+      <!-- 右侧：大立绘 + 动作按钮（立绘旁） -->
+      <div class="stage">
+        <div class="portrait-panel">
+          <img src="/assets/violet-portrait.png" alt="Violet" class="portrait" id="mainPortrait" />
+        </div>
+        <div class="actions">
+          <button class="action-btn active" data-action="idle" data-i18n="actIdle">Idle</button>
+          <button class="action-btn" data-action="wave" data-i18n="actWave">Wave</button>
+          <button class="action-btn" data-action="deliver" data-i18n="actDeliver">Deliver Letter</button>
+          <button class="action-btn" data-action="think" data-i18n="actThink">Think</button>
+        </div>
+      </div>
 
-            <article class="note-card send-card">
-              <h2><span class="seal"></span><span data-i18n="pnSend">Send Letter</span></h2>
-              <div class="send-row">
-                <input id="orderInput" class="order-input" type="text" data-i18n="pnSendPlaceholder" placeholder="type your order…" />
-                <button id="sendBtn" class="send-btn"><span class="send-icon">✉</span></button>
-              </div>
-            </article>
-          </div>
-
-          <!-- 右侧：大立绘 -->
-          <div class="portrait-panel">
-            <img src="/assets/violet-portrait.png" alt="Violet" class="portrait" />
-            <div class="portrait-caption" data-i18n="portraitCaption">Auto Memory Doll</div>
-          </div>
-        </section>
-      </main>
+      <!-- 底部语言切换 -->
+      <div class="lang-wrap">
+        <button id="langBtn" class="lang-btn" data-i18n="btnZh">中文</button>
+      </div>
     </div>
 
     <script type="module" src="/ui/main.js"></script>
