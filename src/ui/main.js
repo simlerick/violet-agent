@@ -74,6 +74,7 @@ function setupChibiActions() {
   if (!chibi || !buttons.length) return;
 
   const bubble = chibi.querySelector(".bubble");
+  const img = document.getElementById("chibiImg");
 
   buttons.forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -81,6 +82,8 @@ function setupChibiActions() {
       btn.classList.add("active");
       const action = btn.dataset.action;
       chibi.dataset.action = action;
+      // 真动作帧切换：/assets/chibi-{action}.png（wave/deliver/think/idle）
+      if (img) img.src = `/assets/chibi-${action}.png`;
       // 气泡（仅递信/思考有文案）
       if (bubble && (action === "deliver" || action === "think")) {
         bubble.textContent = I18N[currentLang][action === "deliver" ? "bubbleDeliver" : "bubbleThink"];
