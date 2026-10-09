@@ -35,16 +35,33 @@ cd src && npm install && cd ..
 ```
 
 ### 3. 运行（Tauri 窗口）
+
+**方式 A：开发模式（推荐，热重载）** —— 需两个终端：
 ```bash
-cargo run
+# 终端 1：启动前端 dev server（vite，端口 1420）
+cd violet-agent/src && npm run dev
+
+# 终端 2：编译并启动应用
+cd violet-agent/src-tauri && cargo run
 ```
+> ⚠️ **重要**：`cargo run` 默认是 debug 模式，应用窗口会加载 `http://localhost:1420`。**如果 vite dev server 没在跑，窗口会是空白**——务必先跑终端 1。
+
+**方式 B：正式构建（无需 dev server）**
+```bash
+cd src && npm run build        # 构建前端到 dist
+cd src-tauri && cargo build --release   # release 模式把前端资源嵌入二进制
+./target/release/violet-agent           # 运行，窗口直接显示内容
+```
+> release 模式不依赖 vite；这也是将来打包 dmg/exe 的方式。
+
 > 首次运行会编译 Tauri 及依赖，需数分钟；编译完成后弹出 Violet Agent 窗口（M0 为占位页 + 本地钱包健康检查）。
 
-### 4. 开发模式（热重载，推荐）
+### 4. 开发模式（一条命令，需 tauri-cli）
 ```bash
+cargo install tauri-cli --locked
 cargo tauri dev
 ```
-前端改动自动刷新，Rust 改动自动重编译。
+`cargo tauri dev` 会自动同时启动 vite 和 Rust，前端改动自动刷新。
 
 ### 5. 打包发布（M4 阶段）
 ```bash
