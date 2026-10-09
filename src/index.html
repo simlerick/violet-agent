@@ -50,8 +50,53 @@
           <div id="viewOrders" class="view view-placeholder hidden">
             <p class="placeholder-text" data-i18n="phOrders">Orders · trading · M4</p>
           </div>
-          <div id="viewSettings" class="view view-placeholder hidden">
-            <p class="placeholder-text" data-i18n="phSettings">Settings · coming soon</p>
+          <!-- Settings 视图 -->
+          <div id="viewSettings" class="view view-settings hidden">
+            <div class="settings-scroll">
+              <!-- LLM 连接 -->
+              <section class="setting-card">
+                <h3 class="setting-title" data-i18n="secConn">LLM Connection</h3>
+                <div class="setting-row">
+                  <label data-i18n="fBaseUrl">Base URL</label>
+                  <input id="cfgBaseUrl" type="text" placeholder="https://api.deepseek.com/v1" />
+                </div>
+                <div class="setting-row">
+                  <label data-i18n="fModel">Model</label>
+                  <input id="cfgModel" type="text" placeholder="deepseek-chat" />
+                </div>
+                <div class="setting-row">
+                  <label data-i18n="fApiKey">API Key</label>
+                  <input id="cfgApiKey" type="password" autocomplete="off" />
+                  <span id="keyState" class="key-state"></span>
+                </div>
+                <div class="setting-row">
+                  <label></label>
+                  <div class="btn-row">
+                    <button id="cfgSave" class="set-btn primary" data-i18n="btnSave">Save</button>
+                    <button id="cfgTest" class="set-btn" data-i18n="btnTest">Test connection</button>
+                  </div>
+                </div>
+                <div id="connStatus" class="conn-status"></div>
+              </section>
+
+              <!-- 语言 -->
+              <section class="setting-card">
+                <h3 class="setting-title" data-i18n="secLang">Language</h3>
+                <div class="setting-row">
+                  <label data-i18n="fLang">Interface</label>
+                  <div class="btn-row">
+                    <button id="cfgLangEn" class="set-btn">English</button>
+                    <button id="cfgLangZh" class="set-btn">中文</button>
+                  </div>
+                </div>
+              </section>
+
+              <!-- 技能（模块能力清单） -->
+              <section class="setting-card">
+                <h3 class="setting-title" data-i18n="secSkills">Skills</h3>
+                <ul class="skill-list" id="skillList"></ul>
+              </section>
+            </div>
           </div>
           <div id="viewMother" class="view view-placeholder hidden">
             <p class="placeholder-text" data-i18n="phMother">Mother Key · local-only · BIP39</p>

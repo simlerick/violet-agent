@@ -20,6 +20,21 @@ const I18N = {
     phOrders: "Orders · trading · M4",
     phSettings: "Settings · coming soon",
     phMother: "Mother Key · local-only · BIP39",
+    secConn: "LLM Connection",
+    secLang: "Language",
+    secSkills: "Skills",
+    fBaseUrl: "Base URL",
+    fModel: "Model",
+    fApiKey: "API Key",
+    fLang: "Interface",
+    btnSave: "Save",
+    btnTest: "Test connection",
+    keyNotSet: "not set",
+    keySet: "configured: ",
+    connOk: "Connection OK",
+    connFail: "Failed",
+    saved: "Saved ✓",
+    langSaved: "Language saved ✓",
   },
   zh: {
     btnZh: "中文",
@@ -37,6 +52,21 @@ const I18N = {
     phOrders: "指令 · 交易 · M4 上线",
     phSettings: "设置 · 即将上线",
     phMother: "母钱包 · 仅本地 · BIP39",
+    secConn: "LLM 连接",
+    secLang: "语言",
+    secSkills: "技能",
+    fBaseUrl: "接口地址",
+    fModel: "模型",
+    fApiKey: "API Key",
+    fLang: "界面语言",
+    btnSave: "保存",
+    btnTest: "测试连接",
+    keyNotSet: "未设置",
+    keySet: "已配置: ",
+    connOk: "连接成功",
+    connFail: "连接失败",
+    saved: "已保存 ✓",
+    langSaved: "语言已保存 ✓",
   },
 };
 
@@ -71,6 +101,116 @@ function switchView(key) {
     if (el) el.classList.toggle("hidden", v !== key);
   });
   if (key === "wallet") pingKeystore();
+  if (key === "settings") loadSettings();
+}
+
+// ---------- 设置 ----------
+const SKILLS = [
+  { id: "keystore", name: "keystore", desc: "M0 · local keys · argon2id + BIP39 (planned)", on: true },
+  { id: "llm-chat", name: "llm-chat", desc: "M1 · OpenAI-compatible gateway (Deepseek) + local fallback", on: true },
+  { id: "on-chain", name: "on-chain", desc: "M3 · Solana read-only (balances / portfolio)", on: false },
+  { id: "trading", name: "trading", desc: "M4 · DEX swaps + stop-loss (mother/sub-wallet)", on: false },
+  { id: "pet", name: "pet", desc: "removed for now · will return as Q-version companion", on: false },
+];
+
+function renderSkills() {
+  const list = document.getElementById("skillList");
+  if (!list) return;
+  list.innerHTML = "";
+  SKILLS.forEach((s) => {
+    const li = document.createElement("li");
+    li.className = "skill-item";
+    li.innerHTML = `
+      <span class="skill-dot ${s.on ? "on" : "off"}"></span>
+      <span class="skill-name">${s.name}</span>
+      <span class="skill-desc">${s.desc}</span>`;
+    list.appendChild(li);
+  });
+}
+
+async function loadSettings() {
+  renderSkills();
+  const base = document.getElementById("cfgBaseUrl");
+  const model = document.getElementById("cfgModel");
+  const keyInput = document.getElementById("cfgApiKey");
+  const keyState = document.getElementById("keyState");
+  try {
+    const { invoke } = await import("@tauri-apps/api/core");
+    const s = await invoke("settings_get");
+    if (base) base.value = s.llm_base_url || "";
+    if (model) model.value = s.llm_model || "";
+    if (keyInput) keyInput.value = "";
+    if (keyState) {
+      keyState.textContent = s.llm_api_key_masked
+        ? `${t("keySet")}${s.llm_api_key_masked}`
+        : t("keyNotSet");
+    }
+  } catch (e) {
+    if (keyState) keyState.textContent = "browser preview";
+  }
+}
+
+async function saveSettings() {
+  const base = document.getElementById("cfgBaseUrl");
+  const model = document.getElementById("cfgModel");
+  const keyInput = document.getElementById("cfgApiKey");
+  const status = document.getElementById("connStatus");
+  const { invoke } = await import("@tauri-apps/api/core");
+  try {
+    const res = await invoke("settings_save", {
+      llmApiKey: keyInput ? keyInput.value.trim() : null,
+      llmBaseUrl: base ? base.value.trim() : null,
+      llmModel: model ? model.value.trim() : null,
+      language: currentLang,
+    });
+    setConnStatus(res && res.ok ? t("saved") : `[err] ${res && res.reason}`, res && res.ok ? "ok" : "err");
+    await loadSettings();
+  } catch (e) {
+    setConnStatus(`[err] ${e}`, "err");
+  }
+}
+
+async function testConn() {
+  const status = document.getElementById("connStatus");
+  setConnStatus("testing…");
+  const { invoke } = await import("@tauri-apps/api/core");
+  try {
+    const r = await invoke("llm_ping");
+    setConnStatus(r.ok ? `${t("connOk")} — ${r.detail}` : `${t("connFail")} — ${r.detail}`, r.ok ? "ok" : "err");
+  } catch (e) {
+    setConnStatus(`[err] ${e}`, "err");
+  }
+}
+
+function setConnStatus(text, kind) {
+  const status = document.getElementById("connStatus");
+  if (!status) return;
+  status.textContent = text;
+  status.className = `conn-status ${kind === "ok" ? "ok" : kind === "err" ? "err" : ""}`;
+}
+
+function setupSettings() {
+  const save = document.getElementById("cfgSave");
+  const test = document.getElementById("cfgTest");
+  if (save) save.addEventListener("click", saveSettings);
+  if (test) test.addEventListener("click", testConn);
+
+  const en = document.getElementById("cfgLangEn");
+  const zh = document.getElementById("cfgLangZh");
+  if (en) en.addEventListener("click", () => { applyLang("en"); persistLang(); });
+  if (zh) zh.addEventListener("click", () => { applyLang("zh"); persistLang(); });
+}
+
+async function persistLang() {
+  try {
+    const { invoke } = await import("@tauri-apps/api/core");
+    await invoke("settings_save", {
+      llmApiKey: null,
+      llmBaseUrl: null,
+      llmModel: null,
+      language: currentLang,
+    });
+  } catch (e) { /* browser preview */ }
 }
 
 // ---------- 聊天 ----------
@@ -178,6 +318,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (input) input.addEventListener("keydown", (e) => { if (e.key === "Enter") sendMessage(); });
 
   setupWinControls();
+  setupSettings();
   addMsg("sys", t("sysReady"));
   addMsg("agent", "Hello — I'm Violet, your Auto Memory Doll. Ask me anything, or try wallet / trade / solana / help.");
 });

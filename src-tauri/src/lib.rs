@@ -8,6 +8,7 @@
 
 mod wallet;
 mod agent;
+mod settings;
 
 use tauri::Manager;
 
@@ -24,7 +25,11 @@ pub fn run() {
             // M0: 本地钱包只读接口
             wallet::keystore::health,
             // M1: LLM 对话网关（OpenAI 兼容 API，默认 Deepseek）
-            agent::llm_chat
+            agent::llm_chat,
+            // 设置：连接配置读写 + 连通测试
+            settings::settings_get,
+            settings::settings_save,
+            settings::llm_ping
         ])
         .build(tauri::generate_context!())
         .expect("error while building Violet Agent")
