@@ -1,19 +1,90 @@
 <!doctype html>
-<html lang="zh">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Violet Agent 🌸</title>
+    <title>Violet Agent</title>
+    <link rel="stylesheet" href="/ui/styles.css" />
   </head>
   <body>
-    <!-- M0 占位页：后续里程碑接入对话/流水/持仓 UI -->
     <div id="app">
-      <div class="violet-hero">
-        <h1>Violet Agent 🌸</h1>
-        <p>冷静、精准、忠于指令 —— 替你执行每一次决策。</p>
-        <code>M0 骨架就绪 · 本地钱包模块加载中…</code>
+      <!-- 左侧导航 -->
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-mark">🌸</span>
+          <span class="brand-name" data-i18n="appName">Violet Agent</span>
+        </div>
+        <nav class="nav">
+          <a class="nav-item active" data-key="wallet"><span class="nav-icon">🛡</span><span data-i18n="navWallet">Wallet</span></a>
+          <a class="nav-item" data-key="portfolio"><span class="nav-icon">📜</span><span data-i18n="navPortfolio">Portfolio</span></a>
+          <a class="nav-item" data-key="orders"><span class="nav-icon">✉️</span><span data-i18n="navOrders">Orders</span></a>
+          <a class="nav-item" data-key="settings"><span class="nav-icon">⚙</span><span data-i18n="navSettings">Settings</span></a>
+          <a class="nav-item" data-key="mother"><span class="nav-icon">🔑</span><span data-i18n="navMother">Mother Key</span></a>
+        </nav>
+        <div class="sidebar-foot">
+          <span data-i18n="footQuote">Written by hand, kept with love.</span>
+        </div>
+      </aside>
+
+      <!-- 主区 -->
+      <main class="main">
+        <header class="topbar">
+          <h1 class="title" data-i18n="appName">Violet Agent</h1>
+          <div class="topbar-right">
+            <button id="langBtn" class="lang-btn" data-i18n="btnZh">中文</button>
+          </div>
+        </header>
+
+        <section class="content">
+          <!-- 纸感卡片区 -->
+          <div class="cards">
+            <article class="paper-card card-overview">
+              <h2 data-i18n="cardOverviewTitle">Wallet Overview</h2>
+              <div class="overview-body">
+                <div class="badge">🛡</div>
+                <div class="overview-lines">
+                  <div class="line label" data-i18n="cardKeystore">Keystore</div>
+                  <div class="line value"><code id="healthJson">checking…</code></div>
+                </div>
+              </div>
+            </article>
+
+            <article class="paper-card">
+              <h2 data-i18n="cardTxTitle">Recent Transactions</h2>
+              <ul class="tx-list">
+                <li class="tx-row"></li>
+                <li class="tx-row"></li>
+                <li class="tx-row"></li>
+              </ul>
+              <p class="placeholder" data-i18n="cardTxPlaceholder">Awaiting on-chain activity.</p>
+            </article>
+
+            <article class="paper-card">
+              <h2 data-i18n="cardSlTitle">Stop-Loss</h2>
+              <div class="sl-row">
+                <span data-i18n="cardSlSwitch">Enable guard</span>
+                <span class="switch" id="slSwitch"><span class="knob"></span></span>
+              </div>
+              <div class="sl-row">
+                <span data-i18n="cardSlHint">Limits apply to child wallet only.</span>
+              </div>
+            </article>
+          </div>
+
+          <!-- 右侧：原版薇尔莉特立绘 -->
+          <div class="portrait-panel">
+            <img src="/assets/violet-portrait.png" alt="Violet" class="portrait" />
+            <div class="portrait-caption" data-i18n="portraitCaption">Auto Memory Doll</div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Q 版桌宠 -->
+      <div id="chibi" class="chibi" title="Violet">
+        <img src="/assets/violet-chibi.png" alt="Violet chibi" />
       </div>
     </div>
+
     <script type="module" src="/ui/main.js"></script>
   </body>
 </html>
