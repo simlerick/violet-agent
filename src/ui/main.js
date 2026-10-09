@@ -1,62 +1,38 @@
-// Violet Agent 前端逻辑（M0 视觉 v5）
-// - 导航切换视图（Wallet/Portfolio/Orders/Settings/Mother Key 可用）
-// - 立绘随动作变化（按钮 / 打字 / 连接联动，带动画）
-// - 悬浮球桌宠事件联动（Tauri）
+// Violet Agent 前端逻辑（M0 视觉 v6：整图模板 + 热区）
+// - 导航热区切换（Wallet 显示数据，其他视图显示提示）
+// - 立绘动作联动（按钮/打字/连接 → 动作动画 + 桌宠事件）
+// - 无边框窗口控制
 
 const I18N = {
   en: {
-    appName: "Violet Agent",
-    navWallet: "Wallet",
-    navPortfolio: "Portfolio",
-    navOrders: "Orders",
-    navSettings: "Settings",
-    navMother: "Mother Key",
-    pnWalletStatus: "Wallet Status",
-    pnBalance: "Balance",
-    pnBalancePlaceholder: "awaiting setup",
-    pnHistory: "History",
-    pnSend: "Send Letter",
+    btnZh: "中文",
+    btnEn: "English",
     pnSendPlaceholder: "type your order…",
-    pnSelf: "Self",
-    pnPortfolio: "Portfolio",
-    pnOrders: "Orders",
-    pnSettings: "Settings",
-    pnMother: "Mother Key",
-    pnComing: "coming soon",
     actIdle: "Idle",
     actWave: "Wave",
     actDeliver: "Deliver Letter",
     actThink: "Think",
-    btnZh: "中文",
-    btnEn: "English",
     healthBrowser: "browser preview (no Tauri)",
+    viewWallet: "Wallet",
+    viewPortfolio: "Portfolio · coming with M3 · on-chain",
+    viewOrders: "Orders · coming with M4 · trading",
+    viewSettings: "Settings · coming soon",
+    viewMother: "Mother Key · local-only · BIP39",
   },
   zh: {
-    appName: "紫罗兰特工",
-    navWallet: "钱包",
-    navPortfolio: "持仓",
-    navOrders: "指令",
-    navSettings: "设置",
-    navMother: "母钱包",
-    pnWalletStatus: "钱包状态",
-    pnBalance: "余额",
-    pnBalancePlaceholder: "等待接入",
-    pnHistory: "历史流水",
-    pnSend: "寄出指令",
+    btnZh: "中文",
+    btnEn: "English",
     pnSendPlaceholder: "输入你的指令…",
-    pnSelf: "人偶",
-    pnPortfolio: "持仓",
-    pnOrders: "指令",
-    pnSettings: "设置",
-    pnMother: "母钱包",
-    pnComing: "即将上线",
     actIdle: "待机",
     actWave: "挥手",
     actDeliver: "递信",
     actThink: "思考",
-    btnZh: "中文",
-    btnEn: "English",
     healthBrowser: "浏览器预览（无 Tauri）",
+    viewWallet: "钱包",
+    viewPortfolio: "持仓 · M3 上线 · 链上",
+    viewOrders: "指令 · M4 上线 · 交易",
+    viewSettings: "设置 · 即将上线",
+    viewMother: "母钱包 · 仅本地 · BIP39",
   },
 };
 
@@ -76,42 +52,48 @@ function applyLang(lang) {
   if (input) input.placeholder = I18N[lang].pnSendPlaceholder;
 }
 
-// ---------- 导航切换（视图可用） ----------
+// ---------- 导航热区切换 ----------
 function setupNav() {
+  const hint = document.getElementById("viewHint");
+  const health = document.getElementById("healthJson");
   document.querySelectorAll(".nav-item").forEach((item) => {
     item.addEventListener("click", () => {
       document.querySelectorAll(".nav-item").forEach((i) => i.classList.remove("active"));
       item.classList.add("active");
-      document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
-      const view = document.getElementById(`view-${item.dataset.key}`);
-      if (view) view.classList.add("active");
+      const key = item.dataset.key;
+      if (!hint) return;
+      if (key === "wallet") {
+        hint.classList.add("hidden");
+        if (health) health.classList.remove("hidden");
+      } else {
+        const label = I18N[currentLang][`view${key[0].toUpperCase()}${key.slice(1)}`] || I18N.en.viewWallet;
+        hint.textContent = label;
+        hint.classList.remove("hidden");
+        if (health) health.classList.add("hidden");
+      }
     });
   });
 }
 
 // ---------- 立绘动作 ----------
 const PORTRAIT_ACTIONS = {
-  idle: { anim: "p-idle", pet: "idle" },
-  wave: { anim: "p-wave", pet: "wave" },
-  deliver: { anim: "p-deliver", pet: "deliver" },
-  think: { anim: "p-think", pet: "think" },
+  idle: { pet: "idle" },
+  wave: { pet: "wave" },
+  deliver: { pet: "deliver" },
+  think: { pet: "think" },
 };
-let currentAction = "idle";
 
 function setAction(action) {
-  currentAction = action;
-  const portrait = document.getElementById("mainPortrait");
-  const cfg = PORTRAIT_ACTIONS[action] || PORTRAIT_ACTIONS.idle;
-  if (portrait) {
-    portrait.dataset.action = action;
-    portrait.classList.remove("p-idle", "p-wave", "p-deliver", "p-think");
-    // 强制重启动画
-    void portrait.offsetWidth;
-    portrait.classList.add(cfg.anim);
-  }
   document.querySelectorAll(".action-btn").forEach((b) => {
     b.classList.toggle("active", b.dataset.action === action);
   });
+  const cfg = PORTRAIT_ACTIONS[action] || PORTRAIT_ACTIONS.idle;
+  const portrait = document.getElementById("mainPortrait");
+  if (portrait) {
+    portrait.classList.remove("p-idle", "p-wave", "p-deliver", "p-think");
+    void portrait.offsetWidth; // 重启动画
+    portrait.classList.add(`p-${action}`);
+  }
   notifyPet(cfg.pet);
 }
 
@@ -138,12 +120,12 @@ function notifyPet(action) {
 async function pingKeystore() {
   const el = document.getElementById("healthJson");
   if (!el) return;
-  setAction("think"); // 连接中 → 思考
+  setAction("think");
   try {
     const { invoke } = await import("@tauri-apps/api/core");
     const health = await invoke("health");
     el.textContent = JSON.stringify(health);
-    setAction("deliver"); // 拿到结果 → 递信
+    setAction("deliver");
     setTimeout(() => setAction("idle"), 2200);
   } catch (e) {
     el.textContent = I18N[currentLang].healthBrowser;
@@ -162,9 +144,9 @@ function setupOrderBox() {
   });
   send.addEventListener("click", () => {
     if (!input.value.trim()) return;
-    setAction("think"); // 处理中
+    setAction("think");
     setTimeout(() => {
-      setAction("deliver"); // 完成 → 递信
+      setAction("deliver");
       input.value = "";
       input.blur();
       setTimeout(() => setAction("idle"), 2400);
@@ -175,25 +157,22 @@ function setupOrderBox() {
   });
 }
 
-// ---------- Self 开关（桌宠联动） ----------
+// ---------- Self 开关 ----------
 function setupSelf() {
   const toggle = document.getElementById("selfToggle");
   if (!toggle) return;
   toggle.addEventListener("change", () => {
-    // M0：开关联动桌宠显隐（Tauri 环境）
     notifyPet(toggle.checked ? "idle" : "hidden");
   });
 }
 
-// ---------- 窗口控制（无边框） ----------
+// ---------- 窗口控制 ----------
 function setupWinControls() {
   const min = document.getElementById("winMin");
   const close = document.getElementById("winClose");
   if (!min && !close) return;
-  Promise.all([
-    import("@tauri-apps/api/window"),
-  ])
-    .then(([win]) => {
+  import("@tauri-apps/api/window")
+    .then((win) => {
       if (min) min.addEventListener("click", () => win.getCurrentWindow().minimize());
       if (close) close.addEventListener("click", () => win.getCurrentWindow().close());
     })

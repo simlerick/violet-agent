@@ -14,9 +14,9 @@
       {
         "title": "Violet Agent",
         "width": 1280,
-        "height": 820,
-        "minWidth": 1000,
-        "minHeight": 660,
+        "height": 720,
+        "minWidth": 1024,
+        "minHeight": 576,
         "resizable": true,
         "center": true,
         "decorations": false,
