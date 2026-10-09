@@ -1,7 +1,7 @@
 # Rust / Cargo
 /target
 **/*.rs.bk
-Cargo.lock
+# 注：Cargo.lock 对二进制应用需提交（保证可复现构建），故不忽略
 
 # Node / 前端
 node_modules/
