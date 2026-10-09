@@ -1,7 +1,7 @@
-// Violet Agent 前端逻辑（M0 视觉 v2）
+// Violet Agent 前端逻辑（M0 视觉 v3 —— 参考原版 UI）
 // - 中英文切换（默认英文，中文表已就绪）
 // - keystore 健康检查（Tauri invoke -> wallet::keystore::health）
-// - Q 版桌宠交互预留（后续接入动作帧/动画）
+// - Q 版桌宠动作切换（Idle / Wave / Deliver Letter / Think）
 
 const I18N = {
   en: {
@@ -11,17 +11,22 @@ const I18N = {
     navOrders: "Orders",
     navSettings: "Settings",
     navMother: "Mother Key",
-    footQuote: "Written by hand, kept with love.",
     btnZh: "中文",
     btnEn: "English",
-    cardOverviewTitle: "Wallet Overview",
-    cardKeystore: "Keystore",
-    cardTxTitle: "Recent Transactions",
-    cardTxPlaceholder: "Awaiting on-chain activity.",
-    cardSlTitle: "Stop-Loss",
-    cardSlSwitch: "Enable guard",
-    cardSlHint: "Limits apply to child wallet only.",
+    pnWalletStatus: "Wallet Status",
+    pnBalance: "Balance",
+    pnBalancePlaceholder: "Child wallet on Solana, awaiting setup.",
+    pnHistory: "History",
+    pnHistoryPlaceholder: "No letters sent yet.",
+    pnSend: "Send Letter",
+    pnSendBtn: "Compose order",
     portraitCaption: "Auto Memory Doll",
+    actIdle: "Idle",
+    actWave: "Wave",
+    actDeliver: "Deliver Letter",
+    actThink: "Think",
+    bubbleDeliver: "A letter for you.",
+    bubbleThink: "Hmm…",
   },
   zh: {
     appName: "紫罗兰特工",
@@ -30,17 +35,22 @@ const I18N = {
     navOrders: "指令",
     navSettings: "设置",
     navMother: "母钱包",
-    footQuote: "执笔以寄，珍藏于心。",
     btnZh: "中文",
     btnEn: "English",
-    cardOverviewTitle: "钱包总览",
-    cardKeystore: "本地加密存储",
-    cardTxTitle: "近期流水",
-    cardTxPlaceholder: "等待链上活动…",
-    cardSlTitle: "止损设置",
-    cardSlSwitch: "启用守护",
-    cardSlHint: "限额仅对子钱包生效。",
+    pnWalletStatus: "钱包状态",
+    pnBalance: "余额",
+    pnBalancePlaceholder: "子钱包已预留，等待 Solana 接入。",
+    pnHistory: "历史流水",
+    pnHistoryPlaceholder: "尚未发出任何信件。",
+    pnSend: "寄出指令",
+    pnSendBtn: "撰写订单",
     portraitCaption: "自动手记人偶",
+    actIdle: "待机",
+    actWave: "挥手",
+    actDeliver: "递信",
+    actThink: "思考",
+    bubbleDeliver: "这是寄给你的信。",
+    bubbleThink: "唔……",
   },
 };
 
@@ -57,22 +67,36 @@ function applyLang(lang) {
   if (btn) btn.textContent = lang === "en" ? I18N.en.btnZh : I18N.en.btnEn;
 }
 
-// 桌宠：点击时小幅跳动（动作帧后续接入）
-function setupChibi() {
+// 桌宠动作切换：按钮点亮 + 动画切换 + 气泡
+function setupChibiActions() {
   const chibi = document.getElementById("chibi");
-  if (!chibi) return;
-  chibi.addEventListener("click", () => {
-    chibi.style.animation = "none";
-    chibi.offsetHeight; // reflow
-    chibi.style.animation = "chibiFloat 3.6s ease-in-out infinite";
-  });
-}
+  const buttons = document.querySelectorAll(".action-btn");
+  if (!chibi || !buttons.length) return;
 
-// 止损开关
-function setupSwitch() {
-  const sw = document.getElementById("slSwitch");
-  if (!sw) return;
-  sw.addEventListener("click", () => sw.classList.toggle("on"));
+  const bubble = chibi.querySelector(".bubble");
+
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      buttons.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      const action = btn.dataset.action;
+      chibi.dataset.action = action;
+      // 气泡（仅递信/思考有文案）
+      if (bubble && (action === "deliver" || action === "think")) {
+        bubble.textContent = I18N[currentLang][action === "deliver" ? "bubbleDeliver" : "bubbleThink"];
+        bubble.classList.remove("hidden");
+        clearTimeout(bubble._t);
+        bubble._t = setTimeout(() => bubble.classList.add("hidden"), 2200);
+      } else if (bubble) {
+        bubble.classList.add("hidden");
+      }
+      // 点击反馈：动作按钮组是触发点，桌宠本身给个轻微弹跳
+      chibi.animate(
+        [{ transform: "scale(1)" }, { transform: "scale(1.08)" }, { transform: "scale(1)" }],
+        { duration: 320 }
+      );
+    });
+  });
 }
 
 // keystore 健康检查（Tauri -> Rust）
@@ -90,14 +114,11 @@ async function pingKeystore() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  applyLang("en"); // 第一版：默认英文（中文表已就绪，后续一键切换）
+  applyLang("en"); // 第一版：默认英文（中文表已就绪）
   const btn = document.getElementById("langBtn");
   if (btn) {
-    btn.addEventListener("click", () => {
-      applyLang(currentLang === "en" ? "zh" : "en");
-    });
+    btn.addEventListener("click", () => applyLang(currentLang === "en" ? "zh" : "en"));
   }
-  setupChibi();
-  setupSwitch();
+  setupChibiActions();
   pingKeystore();
 });

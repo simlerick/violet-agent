@@ -8,21 +8,20 @@
   </head>
   <body>
     <div id="app">
-      <!-- 左侧导航 -->
+      <!-- 左侧：品牌 + 竖排导航 -->
       <aside class="sidebar">
         <div class="brand">
-          <span class="brand-mark">🌸</span>
           <span class="brand-name" data-i18n="appName">Violet Agent</span>
         </div>
         <nav class="nav">
-          <a class="nav-item active" data-key="wallet"><span class="nav-icon">🛡</span><span data-i18n="navWallet">Wallet</span></a>
-          <a class="nav-item" data-key="portfolio"><span class="nav-icon">📜</span><span data-i18n="navPortfolio">Portfolio</span></a>
-          <a class="nav-item" data-key="orders"><span class="nav-icon">✉️</span><span data-i18n="navOrders">Orders</span></a>
-          <a class="nav-item" data-key="settings"><span class="nav-icon">⚙</span><span data-i18n="navSettings">Settings</span></a>
-          <a class="nav-item" data-key="mother"><span class="nav-icon">🔑</span><span data-i18n="navMother">Mother Key</span></a>
+          <a class="nav-item active" data-key="wallet"><span class="nav-dot"></span><span data-i18n="navWallet">Wallet</span></a>
+          <a class="nav-item" data-key="portfolio"><span class="nav-dot"></span><span data-i18n="navPortfolio">Portfolio</span></a>
+          <a class="nav-item" data-key="orders"><span class="nav-dot"></span><span data-i18n="navOrders">Orders</span></a>
+          <a class="nav-item" data-key="settings"><span class="nav-dot"></span><span data-i18n="navSettings">Settings</span></a>
+          <a class="nav-item" data-key="mother"><span class="nav-dot"></span><span data-i18n="navMother">Mother Key</span></a>
         </nav>
-        <div class="sidebar-foot">
-          <span data-i18n="footQuote">Written by hand, kept with love.</span>
+        <div class="lang-wrap">
+          <button id="langBtn" class="lang-btn" data-i18n="btnZh">中文</button>
         </div>
       </aside>
 
@@ -30,48 +29,42 @@
       <main class="main">
         <header class="topbar">
           <h1 class="title" data-i18n="appName">Violet Agent</h1>
-          <div class="topbar-right">
-            <button id="langBtn" class="lang-btn" data-i18n="btnZh">中文</button>
-          </div>
         </header>
 
         <section class="content">
-          <!-- 纸感卡片区 -->
-          <div class="cards">
-            <article class="paper-card card-overview">
-              <h2 data-i18n="cardOverviewTitle">Wallet Overview</h2>
-              <div class="overview-body">
-                <div class="badge">🛡</div>
-                <div class="overview-lines">
-                  <div class="line label" data-i18n="cardKeystore">Keystore</div>
-                  <div class="line value"><code id="healthJson">checking…</code></div>
-                </div>
+          <!-- 中间功能面板 -->
+          <div class="panels">
+            <article class="paper-panel">
+              <h2 data-i18n="pnWalletStatus">Wallet Status</h2>
+              <div class="status-row">
+                <span class="status-dot"></span>
+                <code id="healthJson">checking…</code>
               </div>
             </article>
 
-            <article class="paper-card">
-              <h2 data-i18n="cardTxTitle">Recent Transactions</h2>
+            <article class="paper-panel">
+              <h2 data-i18n="pnBalance">Balance</h2>
+              <div class="balance-line"></div>
+              <p class="placeholder" data-i18n="pnBalancePlaceholder">Child wallet on Solana, awaiting setup.</p>
+            </article>
+
+            <article class="paper-panel">
+              <h2 data-i18n="pnHistory">History</h2>
               <ul class="tx-list">
                 <li class="tx-row"></li>
                 <li class="tx-row"></li>
                 <li class="tx-row"></li>
               </ul>
-              <p class="placeholder" data-i18n="cardTxPlaceholder">Awaiting on-chain activity.</p>
+              <p class="placeholder" data-i18n="pnHistoryPlaceholder">No letters sent yet.</p>
             </article>
 
-            <article class="paper-card">
-              <h2 data-i18n="cardSlTitle">Stop-Loss</h2>
-              <div class="sl-row">
-                <span data-i18n="cardSlSwitch">Enable guard</span>
-                <span class="switch" id="slSwitch"><span class="knob"></span></span>
-              </div>
-              <div class="sl-row">
-                <span data-i18n="cardSlHint">Limits apply to child wallet only.</span>
-              </div>
+            <article class="paper-panel">
+              <h2 data-i18n="pnSend">Send Letter</h2>
+              <button class="send-btn" data-i18n="pnSendBtn">Compose order</button>
             </article>
           </div>
 
-          <!-- 右侧：原版薇尔莉特立绘 -->
+          <!-- 右侧：原版立绘 -->
           <div class="portrait-panel">
             <img src="/assets/violet-portrait.png" alt="Violet" class="portrait" />
             <div class="portrait-caption" data-i18n="portraitCaption">Auto Memory Doll</div>
@@ -79,9 +72,18 @@
         </section>
       </main>
 
-      <!-- Q 版桌宠 -->
-      <div id="chibi" class="chibi" title="Violet">
-        <img src="/assets/violet-chibi.png" alt="Violet chibi" />
+      <!-- 右下角：桌宠动作区 -->
+      <div class="chibi-zone">
+        <div class="action-buttons">
+          <button class="action-btn active" data-action="idle" data-i18n="actIdle">Idle</button>
+          <button class="action-btn" data-action="wave" data-i18n="actWave">Wave</button>
+          <button class="action-btn" data-action="deliver" data-i18n="actDeliver">Deliver Letter</button>
+          <button class="action-btn" data-action="think" data-i18n="actThink">Think</button>
+        </div>
+        <div id="chibi" class="chibi" data-action="idle">
+          <img src="/assets/violet-chibi.png" alt="Violet chibi" />
+          <div class="bubble hidden"></div>
+        </div>
       </div>
     </div>
 
